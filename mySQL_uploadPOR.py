@@ -1,8 +1,9 @@
 import pandas as pd
+from influxdb import InfluxDBClient
 from sqlalchemy import create_engine
 import time
 import mysql.connector
-from test2 import csvReader, testResults
+from test2 import testResults
 
 
 print('Receiving inputs...\n')
@@ -12,17 +13,25 @@ testType = input("Input test type (upload/dl):  ")
 dataLength = input("Input data length: ")
 testNum = int(input("Input # of trials: "))
 
+PORStart = "'2019-03-22T12:00:00Z'"
+POREnd = "'2019-04-19T12:00:00Z'"
+
+
+print('\nConnecting to database...')
+client = InfluxDBClient(host='odm2equipment.uwrl.usu.edu', port=8086, username='root',password='foobar123')
+client.switch_database('ciws')
+
 
 print('Establishing connection to '+dbType+' database...')
 # Create engine object with SQLAlchemy.  Through connection pool and dialect, which describes how
 #   to talk to a specific kind of database/DBAPI combo (from SQLAlchemy 1.3 doc).
 #   create_engine('dbtype + python library://dbUsername:dbPassword@dbIPaddress:port/dbToQuery')
-engine = create_engine('mysql+pymysql://test:foobar123@192.168.212.134:3306/ciws')
+engine = create_engine('mysql+pymysql://test:foobar123@192.168.212.134:3306/ciws_POR')
 mySQLdb = mysql.connector.connect(
     host='192.168.212.134',
     user='test',
     password='foobar123',
-    database='ciws'
+    database='ciws_POR'
 )
 print('Connection established!')
 
@@ -35,27 +44,28 @@ testResults = testResults(testNum)
 testData = ['B','C','D','E','F']
 
 # Loop through test for number of trials specified in input.
-print('testing '+dbType+' db...\n')
-for i in range(testNum):
-    print('Trial #',i)
+print('Uploading POR to '+dbType+' db...\n')
+for x in testData:
+    print('Assembling query for '+x+'...')
+    bldgID = "'" + x + "'"
+    query = """SELECT * FROM "flow" WHERE "buildingID" =""" + bldgID + """ AND time >= """ + PORStart + """ AND time <= """ + POREnd + """"""
 
-    mycursor = mySQLdb.cursor()
-    sql = "DROP TABLE flow"
-    mycursor.execute(sql)
+    print('Retrieving data...')
+    # Convert returned ResultSet to Pandas dataframe with list
+    # and get_points.
+    # Set dataframe index as datetime.
+    df_Query = client.query(query)
+    ls = list(df_Query.get_points(measurement='flow'))
+    df = pd.DataFrame(ls)
+    df['time'] = pd.to_datetime(df['time'])
+    df.set_index('time', inplace=True)
 
-
-    for x in testData:
-        # Read in CSV file, start timer
-        csv_StartTime = time.time()
-        df = csvReader(x)
-        csv_FinishTime = time.time()-csv_StartTime
-        testResults.at[i,x+'_csvTime'] = csv_FinishTime
-
-        # Start timer for SQL upload
-        sql_startTime = time.time()
-        df.to_sql(name='flow', con=engine, if_exists='append')
-        sql_FinishTime = time.time() - sql_startTime
-        testResults.at[i, x+'_dataIngestTime'] = sql_FinishTime
+    print('\tuploading ' + x + ' to ' + dbType)
+    # Start timer for SQL upload
+    db_startTime = time.time()
+    df.to_sql(name='flow', con=engine, if_exists='append',index_label='time')
+    db_FinishTime = time.time() - db_startTime
+    testResults.at[1, x+'_dataIngestTime'] = db_FinishTime
 
 # Close connection to db
 mySQLdb.close()
