@@ -2,7 +2,7 @@ import pandas as pd
 from pymongo import MongoClient
 from influxdb import InfluxDBClient
 import time
-from test2 import csvReader, testResults
+from test2 import testResultsUL
 
 
 print('Receiving inputs...\n')
@@ -17,8 +17,8 @@ POREnd = "'2019-04-19T12:00:00Z'"
 
 print('establishing connection...')
 try:
-    client = MongoClient("mongodb://test:foobar123@192.168.212.133/ciws")
-    db = client['ciws']
+    client = MongoClient("mongodb://test:foobar123@192.168.212.133/ciws_por")
+    db = client['ciws_por']
     col = db['flow']
     print('connection successful!')
 except:
@@ -29,8 +29,10 @@ client = InfluxDBClient(host='odm2equipment.uwrl.usu.edu', port=8086, username='
 client.switch_database('ciws')
 
 print('preparing for '+dbType+' database test...')
-testResults = testResults(testNum)
+testResults = testResultsUL(testNum)
 testData = ['B','C','D','E','F']
+#delete = col.delete_many({})
+
 
 # Loop through test for number of trials specified in input.
 print('testing '+dbType+' db...\n')
@@ -47,7 +49,7 @@ for x in testData:
     ls = list(df_Query.get_points(measurement='flow'))
     df = pd.DataFrame(ls)
     df['time'] = pd.to_datetime(df['time'])
-    df.set_index('time', inplace=True)
+#    df.set_index('time', inplace=True)
     df.columns = df.columns.str.lower()
 
     print('\tconverting to dictionary...')

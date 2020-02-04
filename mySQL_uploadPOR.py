@@ -3,7 +3,7 @@ from influxdb import InfluxDBClient
 from sqlalchemy import create_engine
 import time
 import mysql.connector
-from test2 import testResults
+from test2 import testResultsUL
 
 
 print('Receiving inputs...\n')
@@ -40,7 +40,7 @@ print('Connection established!')
 print('Preparing '+dbType+' db test...')
 
 # Create empty dataframe based on length of test, specified with input, to store test results
-testResults = testResults(testNum)
+testResults = testResultsUL(testNum)
 testData = ['B','C','D','E','F']
 
 # Loop through test for number of trials specified in input.

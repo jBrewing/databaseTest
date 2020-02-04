@@ -1,7 +1,7 @@
 import pandas as pd
 from pymongo import MongoClient
 import time
-from test2 import csvReader, testResults
+from test2 import csvReader, testResultsUL
 
 
 print('Receiving inputs...\n')
@@ -22,7 +22,7 @@ except:
     print('connection unsuccessful :(')
 
 print('preparing for '+dbType+' database test...')
-testResults = testResults(testNum)
+testResults = testResultsUL(testNum)
 testData = ['B','C','D','E','F']
 
 # Loop through test for number of trials specified in input.

@@ -3,7 +3,7 @@ from influxdb import DataFrameClient
 from influxdb import InfluxDBClient
 import time
 
-from test2 import csvReader, testResults
+from test2 import testResultsUL
 
 
 print('Receiving inputs...\n')
@@ -32,7 +32,7 @@ except:
 client_testDB.switch_database('ciws_por')
 
 
-testResults = testResults(testNum)
+testResults = testResultsUL(testNum)
 testData = ['B','C','D','E','F']
 
 
@@ -47,8 +47,8 @@ for x in testData:
     # Convert returned ResultSet to Pandas dataframe with list
     # and get_points.
     # Set dataframe index as datetime.
-    df_Query = client.query(query)
-    ls = list(df_Query.get_points(measurement='flow'))
+    results = client.query(query)
+    ls = list(results.get_points(measurement='flow'))
     df = pd.DataFrame(ls)
     df['time'] = pd.to_datetime(df['time'])
     df.set_index('time', inplace=True)

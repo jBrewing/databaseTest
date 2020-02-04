@@ -11,11 +11,17 @@ def csvReader(ID):
                                 'coldInTemp'])
     return df
 
-def testResults (testNum):
+def testResultsUL (testNum):
     results = pd.DataFrame(index=range(1,testNum), columns=['B_csvTime', 'B_dataIngestTime',
                                                             'C_csvTime', 'C_dataIngestTime',
                                                             'D_csvTime', 'D_dataIngestTime',
                                                             'E_csvTime', 'E_dataIngestTime',
                                                             'F_csvTime', 'F_dataIngestTime'
+                                                            ])
+    return results
+
+def testResultsDL(testNum):
+    results = pd.DataFrame(index=range(1,testNum), columns=['query1', 'query2',
+                                                            'query3', 'query4'
                                                             ])
     return results

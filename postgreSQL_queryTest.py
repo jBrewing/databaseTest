@@ -16,7 +16,7 @@ print('Establishing connection to '+dbType+' database...')
 #   to talk to a specific kind of database/DBAPI combo (from SQLAlchemy 1.3 doc).
 #   create_engine('dbtype + python library://dbUsername:dbPassword@dbIPaddress:port/dbToQuery')
 try:
-    engine = create_engine('mysql+pymysql://test:foobar123@192.168.212.134:3306/ciws_POR')
+    engine = create_engine('postgresql+psycopg2://test:foobar123@192.168.212.133:5432/ciws_por')
     print('Connection established!')
 
 except:
@@ -40,7 +40,7 @@ start = "'2019-03-31 8:00:00'"
 end = "'2019-04-06 20:00:00'"
 query2 = """SELECT time, hotInFlowRate, coldInFlowRate, hotOutFlowRate 
 FROM flow 
-WHERE buildingID = 'C' OR 'E' OR 'D' and time between 
+WHERE buildingID = 'C' OR buildingID = 'E' OR buildingID = 'D' and time between 
             """+start+""" and """+end+""""""
 
 # Query 3: POR of all variables from one building
@@ -51,10 +51,10 @@ FROM flow
 WHERE buildingID ='F' AND time BETWEEN 
             """+start+""" and """+end+""""""
 
-# Query 4: One week of flowrate, aggregated to the hour, for 2 buildings, with temp converted to F
+# Query 4: One week of flowrate, aggregated to the hour, for 1 buildings, with temp converted to F
 start = "'2019-03-23 00:00:00'"
 end = "'2019-03-31 00:00:00'"
-query4 = """SELECT HOUR(time) AS hour, MAX(coldInFLowRate) as MaxColdIn, (9.0/5.0)*AVG(coldInTemp)+32 as AvgColdTemp_F 
+query4 = """SELECT extract (hour from time) AS hour, MAX(coldInFLowRate) as MaxColdIn, (9.0/5.0)*AVG(coldInTemp)+32 as AvgColdTemp_F 
 FROM flow 
 WHERE buildingID = 'E' AND time BETWEEN """+start+""" and """+end+""" 
 GROUP BY hour"""
