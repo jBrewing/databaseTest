@@ -54,7 +54,7 @@ for i in range(testNum):
 
 print('Printing results!')
 chunksize = str(chunksize)
-testResults.to_csv('/Users/joseph/Desktop/_query3_'+chunksize+'.csv')
+testResults.to_csv('/Users/augustus/Desktop/_query3_'+chunksize+'.csv')
 
 
 print('done')
